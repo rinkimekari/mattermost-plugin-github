@@ -218,6 +218,10 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "use
 {{.GetIssue.GetBody | removeComments | replaceAllGitHubUsernames}}
 `))
 
+	template.Must(masterTemplate.New("newIssueCollapsed").Funcs(funcMap).Parse(`
+{{template "repo" .GetRepo}} Issue {{template "issue" .GetIssue}} opened by {{template "user" .GetSender}}.
+`))
+
 	template.Must(masterTemplate.New("closedIssue").Funcs(funcMap).Parse(`
 {{template "repo" .GetRepo}} Issue {{template "issue" .GetIssue}} closed by {{template "user" .GetSender}}.
 `))
@@ -352,6 +356,7 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "use
 		"    * Defaults to `pulls,issues,creates,deletes`\n" +
 		"  * `flags` currently supported:\n" +
 		"    * `--exclude-org-member` - events triggered by organization members will not be delivered (the GitHub organization config should be set, otherwise this flag has not effect)\n" +
+		"    * `--collapsed` - makes normally expanded notifications compact to save space (the default is for new issues and pull requests to show the expanded notification)\n" +
 		"* `/github subscriptions delete owner[/repo]` - Unsubscribe the current channel from a repository\n" +
 		"* `/github me` - Display the connected GitHub account\n" +
 		"* `/github settings [setting] [value]` - Update your user settings\n" +

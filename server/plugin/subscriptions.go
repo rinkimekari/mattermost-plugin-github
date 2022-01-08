@@ -17,27 +17,35 @@ const (
 	excludeOrgMemberFlag          = "exclude-org-member"
 	excludeOrgReposFlag           = "exclude"
 	SubscribedRepoNotificationOff = "subscribed-turned-off-notifications"
+	collapseNotificationsFlag     = "collapsed"
 )
 
 type SubscriptionFlags struct {
-	ExcludeOrgMembers bool
-	ExcludeOrgRepos   bool
+	ExcludeOrgMembers     bool
+	ExcludeOrgRepos       bool
+	CollapseNotifications bool
 }
 
-func (s *SubscriptionFlags) AddFlag(flag string) {
+func (f *SubscriptionFlags) AddFlag(flag string) {
 	switch flag { // nolint:gocritic // It's expected that more flags get added.
 	case excludeOrgMemberFlag:
-		s.ExcludeOrgMembers = true
+		f.ExcludeOrgMembers = true
 	case excludeOrgReposFlag:
-		s.ExcludeOrgRepos = true
+		f.ExcludeOrgRepos = true
+	case collapseNotificationsFlag:
+		f.CollapseNotifications = true
 	}
 }
 
-func (s SubscriptionFlags) String() string {
+func (f SubscriptionFlags) String() string {
 	flags := []string{}
 
-	if s.ExcludeOrgMembers {
+	if f.ExcludeOrgMembers {
 		flag := "--" + excludeOrgMemberFlag
+		flags = append(flags, flag)
+	}
+	if f.CollapseNotifications {
+		flag := "--" + collapseNotificationsFlag
 		flags = append(flags, flag)
 	}
 
@@ -111,6 +119,10 @@ func (s *Subscription) Label() string {
 
 func (s *Subscription) ExcludeOrgMembers() bool {
 	return s.Flags.ExcludeOrgMembers
+}
+
+func (s *Subscription) CollapseNotifications() bool {
+    return s.Flags.CollapseNotifications
 }
 
 func (p *Plugin) Subscribe(ctx context.Context, githubClient *github.Client, userID, owner, repo, channelID, features string, flags SubscriptionFlags) error {

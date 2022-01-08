@@ -657,6 +657,8 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 		}
 		subscriptionsAdd.AddStaticListArgument("Currently supports --exclude-org-member ", false, flags)
 	}
+
+	subscriptionsAdd.AddTextArgument("Collapses normally expanded notifications", "(optional)", "--collapsed")
 	subscriptions.AddCommand(subscriptionsAdd)
 
 	subscriptionsDelete := model.NewAutocompleteData("delete", "[owner/repo]", "Unsubscribe the current channel from an organization or repository")
