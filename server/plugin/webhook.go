@@ -258,7 +258,16 @@ func (p *Plugin) postPullRequestEvent(event *github.PullRequestEvent) {
 	}
 
 	newPRMessage, err := renderTemplate("newPR", event)
-	newPRCollapsedMessage, err := renderTemplate("newPR", event)
+	if err != nil {
+		p.API.LogWarn("Failed to render newPRCollapsed template", "error", err.Error())
+		return
+	}
+
+	newPRCollapsedMessage, err := renderTemplate("newPRCollapsed", event)
+	if err != nil {
+		p.API.LogWarn("Failed to render newPRCollapsed template", "error", err.Error())
+		return
+	}
 
 	pullRequestLabelledMessage := ""
 	if action == "labeled" {
@@ -269,14 +278,9 @@ func (p *Plugin) postPullRequestEvent(event *github.PullRequestEvent) {
 		}
 	}
 
-	if err != nil {
-		p.API.LogWarn("Failed to render template", "error", err.Error())
-		return
-	}
-
 	closedPRMessage, err := renderTemplate("closedPR", event)
 	if err != nil {
-		p.API.LogWarn("Failed to render template", "error", err.Error())
+		p.API.LogWarn("Failed to render closedPR template", "error", err.Error())
 		return
 	}
 
@@ -412,6 +416,18 @@ func (p *Plugin) postIssueEvent(event *github.IssuesEvent) {
 
 	subscribedChannels := p.GetSubscribedChannelsForRepository(repo)
 	if len(subscribedChannels) == 0 {
+		return
+	}
+
+	newIssueMessage, err := renderTemplate("newIssue", event)
+	if err != nil {
+		p.API.LogWarn("Failed to render newIssueMessage template", "error", err.Error())
+		return
+	}
+
+	newIssueCollapsedMessage, err := renderTemplate("newIssueCollapsed", event)
+	if err != nil {
+		p.API.LogWarn("Failed to render newIssueCollapsed template", "error", err.Error())
 		return
 	}
 
