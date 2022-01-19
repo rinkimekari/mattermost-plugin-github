@@ -84,20 +84,20 @@ func TestParseOwnerAndRepo(t *testing.T) {
 	}
 }
 
-func TestIsFlag(t *testing.T) {
+func TestIsValidFlag(t *testing.T) {
 	tcs := []struct {
 		Text     string
 		Expected bool
 	}{
-		{Text: "--test-flag", Expected: true},
-		{Text: "--testFlag", Expected: true},
+		{Text: "--exclude-org-member", Expected: true},
+		{Text: "--collapsed", Expected: true},
 		{Text: "test-no-flag", Expected: false},
 		{Text: "testNoFlag", Expected: false},
 		{Text: "test no flag", Expected: false},
 	}
 
 	for _, tc := range tcs {
-		assert.Equal(t, tc.Expected, isFlag(tc.Text))
+		assert.Equal(t, tc.Expected, isValidFlag(tc.Text))
 	}
 }
 
@@ -109,6 +109,21 @@ func TestParseFlag(t *testing.T) {
 		{Text: "--test-flag", Expected: "test-flag"},
 		{Text: "--testFlag", Expected: "testFlag"},
 		{Text: "testNoFlag", Expected: "testNoFlag"},
+	}
+
+	for _, tc := range tcs {
+		assert.Equal(t, tc.Expected, parseFlag(tc.Text))
+	}
+}
+
+func TestIsFlag(t *testing.T) {
+	tcs := []struct {
+		Text     string
+		Expected bool
+	}{
+		{Text: "--test-flag", Expected: true},
+		{Text: "--testFlag", Expected: true},
+		{Text: "testNoFlag", Expected: false},
 	}
 
 	for _, tc := range tcs {

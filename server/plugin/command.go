@@ -23,6 +23,10 @@ const (
 	featureIssueComments = "issue_comments"
 	featurePullReviews   = "pull_reviews"
 	featureStars         = "stars"
+
+	excludeOrgMemberFlag = "exclude-org-member"
+	excludeOrgReposFlag  = "exclude"
+	collapseMessagesFlag = "collapsed"
 )
 
 var validFeatures = map[string]bool{
@@ -36,6 +40,12 @@ var validFeatures = map[string]bool{
 	featureIssueComments: true,
 	featurePullReviews:   true,
 	featureStars:         true,
+}
+
+var validFlags = map[string]bool{
+	excludeOrgMemberFlag: true,
+	excludeOrgReposFlag:  true,
+	collapseMessagesFlag: true,
 }
 
 const (
@@ -279,6 +289,10 @@ func (p *Plugin) handleSubscriptionsList(_ *plugin.Context, args *model.CommandA
 }
 
 func (p *Plugin) handleSubscribesAdd(_ *plugin.Context, args *model.CommandArgs, parameters []string, userInfo *GitHubUserInfo) string {
+	if len(parameters) == 0 {
+		return "Please specify a repository."
+	}
+
 	features := "pulls,issues,creates,deletes"
 	flags := SubscriptionFlags{}
 
@@ -288,8 +302,10 @@ func (p *Plugin) handleSubscribesAdd(_ *plugin.Context, args *model.CommandArgs,
 
 		for _, element := range parameters[1:] {
 			switch {
-			case isFlag(element):
+			case isValidFlag(element):
 				flags.AddFlag(parseFlag(element))
+			case isFlag(element):
+				return "Please use a valid flag." // if not valid above, this must be invalid flag
 			case flags.ExcludeOrgRepos && excludeRepo == "":
 				excludeRepo = element
 			default:
@@ -637,7 +653,7 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 
 	subscriptionsAdd := model.NewAutocompleteData("add", "[owner/repo] [features] [flags]", "Subscribe the current channel to receive notifications about opened pull requests and issues for an organization or repository. [features] and [flags] are optional arguments")
 	subscriptionsAdd.AddTextArgument("Owner/repo to subscribe to", "[owner/repo]", "")
-	subscriptionsAdd.AddTextArgument("Comma-delimited list of one or more of: issues, pulls, pulls_merged, pushes, creates, deletes, issue_creations, issue_comments, pull_reviews, label:\"<labelname>\". Defaults to pulls,issues,creates,deletes", "[features] (optional)", `/[^,-\s]+(,[^,-\s]+)*/`)
+	subscriptionsAdd.AddTextArgument("Comma-delimited list of one or more of: issues, pulls, pulls_merged, pushes, creates, deletes, issue_creations, issue_comments, pull_reviews, label:\"<labelname>\". Defaults to pulls,issues,creates,deletes. Flags include: --collapsed, --exclude, --exclude-org-member. The exclude flags require a GitHub Org in your config file.", "[features] [flags] (optional)", `/[^,-\s]+(,[^,-\s]+)*/`)
 	if config.GitHubOrg != "" {
 		exclude := []model.AutocompleteListItem{
 			{
@@ -658,7 +674,6 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 		subscriptionsAdd.AddStaticListArgument("Currently supports --exclude-org-member ", false, flags)
 	}
 
-	subscriptionsAdd.AddTextArgument("Collapses normally expanded notifications", "(optional)", "--collapsed")
 	subscriptions.AddCommand(subscriptionsAdd)
 
 	subscriptionsDelete := model.NewAutocompleteData("delete", "[owner/repo]", "Unsubscribe the current channel from an organization or repository")
