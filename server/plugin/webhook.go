@@ -251,7 +251,7 @@ func (p *Plugin) postPullRequestEvent(event *github.PullRequestEvent) {
 	}
 
 	pr := event.GetPullRequest()
-	//eventLabel := event.GetLabel().GetName()
+	eventLabel := event.GetLabel().GetName()
 	labels := make([]string, len(pr.Labels))
 	for i, v := range pr.Labels {
 		labels[i] = v.GetName()
@@ -324,15 +324,15 @@ func (p *Plugin) postPullRequestEvent(event *github.PullRequestEvent) {
 
 		switch action {
 		case "labeled":
-			//if sub.Label() == eventLabel {
-			if sub.CollapseNotifications() {
-				post.Message = pullRequestLabelledCollapsedMessage
+			if sub.Label() == eventLabel {
+				if sub.CollapseNotifications() {
+					post.Message = pullRequestLabelledCollapsedMessage
+				} else {
+					post.Message = pullRequestLabelledMessage
+				}
 			} else {
-				post.Message = pullRequestLabelledMessage
+				continue
 			}
-			//} else {
-			//    continue
-			//}
 
 		case "opened":
 			if sub.CollapseNotifications() {
@@ -347,30 +347,6 @@ func (p *Plugin) postPullRequestEvent(event *github.PullRequestEvent) {
 		default:
 			return
 		}
-
-		// if action == "labeled" {
-		// 	// if sub.Label() == eventLabel {
-		// 		if sub.CollapseNotifications() {
-		// 			post.Message = pullRequestLabelledCollapsedMessage
-		// 		} else {
-		// 			post.Message = pullRequestLabelledMessage
-		// 		}
-		// 	// } else {
-		// 	// 	continue
-		// 	// }
-		// }
-
-		// if action == "opened" {
-		// 	if sub.CollapseNotifications() {
-		// 		post.Message = p.sanitizeDescription(newPRCollapsedMessage)
-		// 	} else {
-		// 		post.Message = p.sanitizeDescription(newPRMessage)
-		// 	}
-		// }
-
-		// if action == "closed" {
-		// 	post.Message = closedPRMessage
-		// }
 
 		post.ChannelId = sub.ChannelID
 		if _, err := p.API.CreatePost(post); err != nil {
@@ -467,13 +443,6 @@ func (p *Plugin) postIssueEvent(event *github.IssuesEvent) {
 		p.API.LogWarn("Failed to render newIssueCollapsed template", "error", err.Error())
 		return
 	}
-
-	// renderedMessage, err := renderTemplate(issueTemplate, event)
-	// if err != nil {
-	// 	p.API.LogWarn("Failed to render template", "error", err.Error())
-	// 	return
-	// }
-	// renderedMessage = p.sanitizeDescription(renderedMessage)
 
 	closedIssueMessage, err := renderTemplate("closedIssue", event)
 	if err != nil {

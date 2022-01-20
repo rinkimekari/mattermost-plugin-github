@@ -27,8 +27,10 @@ func (f *SubscriptionFlags) AddFlag(flag string) {
 	switch flag {
 	case excludeOrgMemberFlag:
 		f.ExcludeOrgMembers = true
+
 	case excludeOrgReposFlag:
 		f.ExcludeOrgRepos = true
+
 	case collapseMessagesFlag:
 		f.CollapseNotifications = true
 	}

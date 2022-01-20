@@ -82,6 +82,18 @@ func validateFeatures(features []string) (bool, []string) {
 	return valid, invalidFeatures
 }
 
+func validFlagsString() string {
+	flags := ""
+
+	for s, i := range validFlags {
+		if i {
+			flags += s + ", "
+		}
+	}
+
+	return strings.TrimSuffix(flags, ", ")
+}
+
 func (p *Plugin) getCommand(config *Configuration) (*model.Command, error) {
 	iconData, err := command.GetIconData(p.API, "assets/icon-bg.svg")
 	if err != nil {
@@ -289,10 +301,6 @@ func (p *Plugin) handleSubscriptionsList(_ *plugin.Context, args *model.CommandA
 }
 
 func (p *Plugin) handleSubscribesAdd(_ *plugin.Context, args *model.CommandArgs, parameters []string, userInfo *GitHubUserInfo) string {
-	if len(parameters) == 0 {
-		return "Please specify a repository."
-	}
-
 	features := "pulls,issues,creates,deletes"
 	flags := SubscriptionFlags{}
 
@@ -305,7 +313,8 @@ func (p *Plugin) handleSubscribesAdd(_ *plugin.Context, args *model.CommandArgs,
 			case isValidFlag(element):
 				flags.AddFlag(parseFlag(element))
 			case isFlag(element):
-				return "Please use a valid flag." // if not valid above, this must be invalid flag
+				validFlagsString := validFlagsString()
+				return "Please use one of the valid flags: " + validFlagsString // if not valid above, this must be invalid flag
 			case flags.ExcludeOrgRepos && excludeRepo == "":
 				excludeRepo = element
 			default:
