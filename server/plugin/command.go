@@ -84,7 +84,6 @@ func validateFeatures(features []string) (bool, []string) {
 
 func validFlagsString() string {
 	flags := ""
-
 	for s, i := range validFlags {
 		if i {
 			flags += s + ", "
