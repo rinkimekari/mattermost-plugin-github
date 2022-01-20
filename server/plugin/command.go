@@ -306,13 +306,13 @@ func (p *Plugin) handleSubscribesAdd(_ *plugin.Context, args *model.CommandArgs,
 	var excludeRepo string
 	if len(parameters) > 1 {
 		var optionList []string
+		validFlagsString := validFlagsString()
 
 		for _, element := range parameters[1:] {
 			switch {
 			case isValidFlag(element):
 				flags.AddFlag(parseFlag(element))
 			case isFlag(element):
-				validFlagsString := validFlagsString()
 				return "Please use one of the valid flags: " + validFlagsString // if not valid above, this must be invalid flag
 			case flags.ExcludeOrgRepos && excludeRepo == "":
 				excludeRepo = element
