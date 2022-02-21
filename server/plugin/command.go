@@ -661,8 +661,34 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 
 	subscriptionsAdd := model.NewAutocompleteData("add", "[owner/repo] [features] [flags]", "Subscribe the current channel to receive notifications about opened pull requests and issues for an organization or repository. [features] and [flags] are optional arguments")
 	subscriptionsAdd.AddTextArgument("Owner/repo to subscribe to", "[owner/repo]", "")
-	subscriptionsAdd.AddTextArgument("Comma-delimited list of one or more of: issues, pulls, pulls_merged, pushes, creates, deletes, issue_creations, issue_comments, pull_reviews, label:\"<labelname>\". Defaults to pulls,issues,creates,deletes. Flags include: --collapsed, --exclude, --exclude-org-member. The exclude flags require a GitHub Org in your config file.", "[features] [flags] (optional)", `/[^,-\s]+(,[^,-\s]+)*/`)
+	subscriptionsAdd.AddTextArgument("Comma-delimited list of one or more of: issues, pulls, pulls_merged, pushes, creates, deletes, issue_creations, issue_comments, pull_reviews, label:\"<labelname>\". Defaults to pulls,issues,creates,deletes", "[features] (optional)", `/[^,-\s]+(,[^,-\s]+)*/`)
+
+	collapsedFlagItems := []model.AutocompleteListItem{{
+		Item:     "true",
+		Hint:     "",
+		HelpText: "Collapse notifications",
+	}, {
+		Item:     "false",
+		Hint:     "",
+		HelpText: "Expand notifications",
+	},
+	}
+	subscriptionsAdd.AddNamedStaticListArgument("collapsed", "Whether or not to collapse event notifications. The default is expanded.", false, collapsedFlagItems)
+
+
 	if config.GitHubOrg != "" {
+        excludeOrgMemberFlagItems := []model.AutocompleteListItem{{
+            Item:     "true",
+            Hint:     "",
+            HelpText: "Collapse notifications",
+        }, {
+            Item:     "false",
+            Hint:     "",
+            HelpText: "Expand notifications",
+        },
+        }
+        subscriptionsAdd.AddNamedStaticListArgument("exclude-org-member", "Whether or not to exclude posts from members of the configured organization. The default is false.", false, excludeOrgMemberFlagItems)
+
 		exclude := []model.AutocompleteListItem{
 			{
 				HelpText: "notifications for these repos will be turned off",
@@ -672,14 +698,14 @@ func getAutocompleteData(config *Configuration) *model.AutocompleteData {
 		}
 		subscriptionsAdd.AddStaticListArgument("Currently supports --exclude", true, exclude)
 		subscriptionsAdd.AddTextArgument("Owner/repo to subscribe to", "[owner/repo]", "")
-		flags := []model.AutocompleteListItem{
-			{
-				HelpText: "Events triggered by organization members will not be delivered (the organization config should be set, otherwise this flag has no effect)",
-				Hint:     "(optional)",
-				Item:     "--exclude-org-member",
-			},
-		}
-		subscriptionsAdd.AddStaticListArgument("Currently supports --exclude-org-member ", false, flags)
+		// flags := []model.AutocompleteListItem{
+		// 	{
+		// 		HelpText: "Events triggered by organization members will not be delivered (the organization config should be set, otherwise this flag has no effect)",
+		// 		Hint:     "(optional)",
+		// 		Item:     "--exclude-org-member",
+		// 	},
+		// }
+		// subscriptionsAdd.AddStaticListArgument("Currently supports --exclude-org-member ", false, flags)
 	}
 
 	subscriptions.AddCommand(subscriptionsAdd)
