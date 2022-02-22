@@ -174,6 +174,11 @@ func fullNameFromOwnerAndRepo(owner, repo string) string {
 	return fmt.Sprintf("%s/%s", owner, repo)
 }
 
+func isValidFlag(text string) bool {
+	valid, _ := validFlags[parseFlag(text)]
+	return valid
+}
+
 func isFlag(text string) bool {
 	return strings.HasPrefix(text, "--")
 }

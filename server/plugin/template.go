@@ -191,6 +191,10 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "use
 {{.GetPullRequest.GetBody | removeComments | replaceAllGitHubUsernames}}
 `))
 
+	template.Must(masterTemplate.New("newPRCollapsed").Funcs(funcMap).Parse(`
+{{template "repo" .GetRepo}} Pull request {{template "pullRequest" .GetPullRequest}} was opened by {{template "user" .GetSender}}.
+`))
+
 	template.Must(masterTemplate.New("closedPR").Funcs(funcMap).Parse(`
 {{template "repo" .GetRepo}} Pull request {{template "pullRequest" .GetPullRequest}} was
 {{- if .GetPullRequest.GetMerged }} merged
@@ -202,6 +206,10 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "use
 #### {{.GetPullRequest.GetTitle}}
 ##### {{template "eventRepoPullRequest" .}}
 #pull-request-labeled ` + "`{{.GetLabel.GetName}}`" + ` by {{template "user" .GetSender}}
+`))
+
+	template.Must(masterTemplate.New("pullRequestLabelledCollapsed").Funcs(funcMap).Parse(`
+{{template "repo" .GetRepo}} Pull request {{template "pullRequest" .GetPullRequest}} labeled ` + "`{{.GetLabel.GetName}}`" + ` by {{template "user" .GetSender}}
 `))
 
 	template.Must(masterTemplate.New("pullRequestMentionNotification").Funcs(funcMap).Parse(`
@@ -230,6 +238,10 @@ Assignees: {{range $i, $el := .Assignees -}} {{- if $i}}, {{end}}{{template "use
 #### {{.GetIssue.GetTitle}}
 ##### {{template "eventRepoIssue" .}}
 #issue-labeled ` + "`{{.GetLabel.GetName}}`" + ` by {{template "user" .GetSender}}.
+`))
+
+	template.Must(masterTemplate.New("issueLabelledCollapsed").Funcs(funcMap).Parse(`
+{{template "repo" .GetRepo}} Issue {{template "issue" .GetIssue}} labeled ` + "`{{.GetLabel.GetName}}`" + ` by {{template "user" .GetSender}}.
 `))
 
 	template.Must(masterTemplate.New("reopenedIssue").Funcs(funcMap).Parse(`
