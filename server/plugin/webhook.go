@@ -502,29 +502,7 @@ func (p *Plugin) postIssueEvent(event *github.IssuesEvent) {
 		return
 	}
 
-<<<<<<< HEAD
 	newIssueMessage, err := renderTemplate("newIssue", event)
-=======
-	issueTemplate := ""
-	switch action {
-	case actionOpened:
-		issueTemplate = "newIssue"
-
-	case actionClosed:
-		issueTemplate = "closedIssue"
-
-	case actionReopened:
-		issueTemplate = "reopenedIssue"
-
-	case actionLabeled:
-		issueTemplate = "issueLabelled"
-
-	default:
-		return
-	}
-
-	renderedMessage, err := renderTemplate(issueTemplate, event)
->>>>>>> 75bcaa105469a88f15517833d4a06e2898b40fc8
 	if err != nil {
 		p.API.LogWarn("Failed to render newIssueMessage template", "error", err.Error())
 		return
